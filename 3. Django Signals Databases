@@ -1,0 +1,33 @@
+#Django signals execute within the same database transaction by default. This means if the transaction is rolled back, the signal’s effects will also be rolled back.
+
+from django.db import transaction
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.contrib.auth.models import User
+from django.core.exceptions import ObjectDoesNotExist
+
+@receiver(post_save, sender=User)
+def signal_handler(sender, instance, **kwargs):
+    print("Signal handler executed")
+    # Check if the user exists in the database
+    try:
+        db_user = User.objects.get(username=instance.username)
+        print("User exists in DB inside signal handler")
+    except ObjectDoesNotExist:
+        print("User does NOT exist in DB inside signal handler")
+
+# Use atomic transaction and roll it back
+try:
+    with transaction.atomic():
+        user = User(username="testuser")
+        user.save()
+        print("User saved")
+        raise Exception("Forcing rollback")
+except Exception:
+    print("Transaction rolled back")
+
+# Check if user exists after rollback
+if not User.objects.filter(username="testuser").exists():
+    print("User does NOT exist in DB after rollback")
+else:
+    print("User exists in DB after rollback")
