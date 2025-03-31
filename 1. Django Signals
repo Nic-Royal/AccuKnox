@@ -1,0 +1,17 @@
+Django signals are executed synchronously by default. This means that the signal handlers run in the same execution flow as the function that triggered the signal.
+
+import time
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.contrib.auth.models import User
+
+@receiver(post_save, sender=User)
+def slow_signal_handler(sender, instance, **kwargs):
+    print("Signal handler started")
+    time.sleep(2)  # Simulate a slow operation
+    print("Signal handler completed")
+
+# Simulate saving a user
+user = User(username="testuser")
+user.save()
+print("User save function completed!")
