@@ -1,0 +1,16 @@
+#Django signals run in the same thread as the caller unless explicitly made asynchronous.
+
+import threading
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.contrib.auth.models import User
+
+@receiver(post_save, sender=User)
+def signal_handler(sender, instance, **kwargs):
+    print(f"Signal handler running in thread: {threading.current_thread().name}")
+
+print(f"Main thread: {threading.current_thread().name}")
+
+# Simulate saving a user
+user = User(username="testuser")
+user.save()
