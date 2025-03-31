@@ -1,4 +1,4 @@
-Django signals are executed synchronously by default. This means that the signal handlers run in the same execution flow as the function that triggered the signal.
+#Django signals are executed synchronously by default. This means that the signal handlers run in the same execution flow as the function that triggered the signal.
 
 import time
 from django.db.models.signals import post_save
